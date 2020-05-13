@@ -1,0 +1,86 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion app_android.compileSdkVersion
+    buildToolsVersion app_android.buildToolsVersion
+
+    defaultConfig {
+        applicationId app_id.app
+        minSdkVersion app_android.minSdkVersion
+        targetSdkVersion app_android.targetSdkVersion
+        versionCode app_android.versionCode
+        versionName app_android.versionName
+
+        // 这个方法接收三个非空的参数，第一个：确定值的类型，第二个：指定key的名字，第三个：传值（必须是String）
+        // 为什么需要定义这个？因为src代码中有可能需要用到跨模块交互，如果是组件化模块显然不行
+        // 切记：不能在android根节点，只能在defaultConfig或buildTypes节点下
+        buildConfigField("boolean", "isRelease", String.valueOf(isRelease))
+
+        //使用阿里路由必須添加
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [AROUTER_MODULE_NAME: project.getName()]
+            }
+        }
+    }
+
+    buildTypes {
+        //根据debug或release环境，将需要使用的url保存到buildConfig中
+
+        debug{
+            // 增加服务器URL地址---是在测试环境下
+            buildConfigField("String","SERVER_URL","\"${url.debug}\"")
+        }
+
+        release {
+            // 增加服务器URL地址---是在正式环境下
+            buildConfigField("String","SERVER_URL","\"${url.release}\"")
+
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+
+    // 源集 - 设置源集的属性，更改源集的 Java 目录或者自由目录等
+    // 注意：我们先加入进来，后续在学习哦
+    sourceSets {
+        main {
+            if (!isRelease) {
+                // 如果是组件化模式，需要单独运行时
+                manifest.srcFile 'src/main/AndroidManifest.xml'
+                java.srcDirs = ['src/main/java']
+                res.srcDirs = ['src/main/res']
+                resources.srcDirs = ['src/main/resources']
+                aidl.srcDirs = ['src/main/aidl']
+                assets.srcDirs = ['src/main/assets']
+            } else {
+                // 集成化模式，整个项目打包
+                manifest.srcFile 'src/main/AndroidManifest.xml'
+            }
+        }
+    }
+
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+
+    // 更简洁的方式，由于我们config那边定义的是 map，那么是不是可以遍历map
+    //将app_implementation中的依赖全部引用
+/*    app_implementation.each {
+        k, v -> implementation v
+    }*/
+
+    implementation project(':base')
+    annotationProcessor "com.alibaba:arouter-compiler:1.2.2"
+
+    // 如果是集成化模式，做发布版本时。各个模块都不能独立运行了
+    if (isRelease){
+        implementation project(':main')
+        implementation project(':first')
+        implementation project(':second')
+    }
+
+}

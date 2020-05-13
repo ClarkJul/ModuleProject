@@ -1,0 +1,35 @@
+// 把一些公用的，共用的，可扩展的，加入到这里面来
+// 整个App项目的Gradle配置文件
+// ext 自定义增加我们的内容
+ext {
+    // 开发环境 / 生产环境（测试/正式）
+    // 这个变量也可以设置在gradle.properties文件中，如isRunAlone，使用时if(isRunAlone.toBoolean){},但只能在gradle中使用
+    isRelease = true
+
+    // 建立Map存储，对象名、key都可以自定义，groovy糖果语法，非常灵活
+    app_android = [
+            compileSdkVersion        : 29,
+            buildToolsVersion        : "29.0.2",
+
+            minSdkVersion            : 26,
+            targetSdkVersion         : 29,
+            versionCode              : 1,
+            versionName              : "1.0",
+    ]
+
+    app_id = ["app"   : "com.mobiledrivetech.emoduleproject",
+              "main" : "com.mobiledrivetech.main",
+              "first" : "com.mobiledrivetech.first",
+              "second": "com.mobiledrivetech.second"]
+
+    //  测试环境，正式环境 URL
+    url = [
+            "debug"  : "https://11.22.33.44/debug",
+            "release": "https://11.22.33.44/release"
+    ]
+
+    // 依赖相关的
+    app_implementation = [
+            "appcompat": "androidx.appcompat:appcompat:1.1.0",
+    ]
+}

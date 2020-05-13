@@ -1,0 +1,6 @@
+rootProject.name='EModuleProject'
+include ':app'
+include ':base'
+include ':first'
+include ':second'
+include ':main'
